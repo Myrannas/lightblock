@@ -1,0 +1,1 @@
+{"name":"Lightblock","body":"lightblock\r\n==========\r\n\r\nLight Block is a highly scalable minecraft server, written in Scala.\r\n\r\nThis server is designed with concurrency in mind, and can be split over several physical computers, or cores.","tagline":"Light Block","google":"","note":"Don't delete this file! It's used internally to help with page regeneration."}
