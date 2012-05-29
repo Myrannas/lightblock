@@ -59,6 +59,10 @@ class PacketSerializer(val channel : ChannelBuffer) {
     channel.writeBytes(message.getBytes("UTF-16BE"))
   }
 
+  /**
+   * Write several values to a channel
+   * @param any
+   */
   def write(any: Any*) {
 
   }
