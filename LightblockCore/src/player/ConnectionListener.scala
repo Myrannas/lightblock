@@ -29,6 +29,7 @@ class ConnectionListener extends Actor with ActorLogging{
       p.addLast("FrameAssembler",new FrameAssembler())
       p.addLast("MessageDecoder",new MessageDecoder())
       p.addLast("MessageHandler", new MessageHandler(ref))
+
       p
     }
   })

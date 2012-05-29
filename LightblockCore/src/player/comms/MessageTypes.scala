@@ -7,6 +7,18 @@ package player.comms
  */
 
 object MessageTypes {
-  val Login = 1
-  val Handshake = 2
+  val Chunk = 0x33
+
+  val MapAlloc = 0x32
+
+  val PlayerPosition = 0x0B
+
+  val PositionLook = 0x0D
+
+  val Ping = 0xFE
+  val Kick = 0xFF
+
+  val KeepAlive = 0x00
+  val Login = 0x01
+  val Handshake = 0x02
 }

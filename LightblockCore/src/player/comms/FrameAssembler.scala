@@ -1,9 +1,10 @@
 package player.comms
 
 import org.jboss.netty.handler.codec.frame.FrameDecoder
-import org.jboss.netty.channel.{Channel, ChannelHandlerContext}
-import org.jboss.netty.buffer.ChannelBuffer
 import org.jboss.netty.handler.codec.replay.{VoidEnum, ReplayingDecoder}
+import org.jboss.netty.buffer.{ChannelBuffers, ChannelBuffer}
+import PacketSerializer._
+import org.jboss.netty.channel.{ChannelFuture, ChannelFutureListener, Channel, ChannelHandlerContext}
 
 /**
  * User: michael
@@ -16,17 +17,39 @@ class FrameAssembler extends ReplayingDecoder[VoidEnum] {
     buffer.markReaderIndex()
     val messageStart = buffer.readerIndex()
 
-    buffer.readByte() match {
+    buffer.readUnsignedByte() match {
+      case MessageTypes.KeepAlive=>
+        buffer.readInt()
         //Login packet
       case MessageTypes.Login =>
         buffer.readBytes(4)
         readString(buffer)
-        readString(buffer)
-        buffer.readBytes(11)
+        buffer.readShort()
+        buffer.readInt()
+        buffer.readInt()
+        buffer.readByte()
+        buffer.readByte()
+        buffer.readByte()
       case MessageTypes.Handshake =>
         readString(buffer)
-      case i : Byte =>
-        throw new Exception("Unidentified starting byte")
+      case MessageTypes.PlayerPosition=>
+        buffer.readBytes(33)
+      case MessageTypes.PositionLook =>
+        buffer.readBytes(41)
+      case MessageTypes.Ping=>
+        val kickBuffer = ChannelBuffers.dynamicBuffer()
+        kickBuffer.writePacket(ServerKick("Lightblock powered server\u00A70\u00A71024"))
+        context.getChannel.write(kickBuffer).addListener(new ChannelFutureListener {
+          def operationComplete(p1: ChannelFuture) {
+            context.getChannel.close()
+          }
+        })
+      case i : Short =>
+        var kickBuffer = ChannelBuffers.dynamicBuffer()
+        kickBuffer.writePacket(ServerKick("Unknown packet id 0x%02x".format(i)))
+        context.getChannel.write(kickBuffer).awaitUninterruptibly()
+        context.getChannel.close()
+        throw new Exception("Unknown packet id 0x%02x".format(i))
     }
 
     val readLength = buffer.readerIndex() - messageStart
